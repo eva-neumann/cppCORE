@@ -195,8 +195,8 @@ IntervalTreeData<T>::IntervalTreeData(const T& container,
     : container_(container),
       center_(0)
 {
-    QTime timer;
-    QTextStream outstream(stdout);
+//    QTime timer;
+//    QTextStream outstream(stdout);
 
     int leftp = 0;
     int rightp = 0;
@@ -281,6 +281,11 @@ IntervalTreeData<T>::IntervalTreeData(const T& container,
         }
         ++it;
     }
+//    if (intervals_.count()>1)
+//    {
+
+//        outstream << "number intervals at node " << intervals_.count() << endl;
+//    }
 
     //outstream <<"categorize intervals " + Helper::elapsedTime(timer) << endl;
 
@@ -306,8 +311,8 @@ IntervalTreeData<T>::IntervalTreeData(const IntervalTreeData &other)
       intervals_(other.intervals_),
       center_(other.center_)
 {
-    QTextStream outstream(stdout);
-    outstream << "IntervalTreeData::IntervalTreeData copy constructor " << endl;
+//    QTextStream outstream(stdout);
+//    outstream << "IntervalTreeData::IntervalTreeData copy constructor " << endl;
 
     if (!other.left_.isNull())
     {
@@ -458,8 +463,8 @@ void IntervalTreeData<T>::allIntervals(QVector<Interval>& intervals) const
 template <class T>
 IntervalTree<T>::IntervalTree() : d_(), size_(0)
 {
-    QTextStream outstream(stdout);
-    outstream << "IntervalTree default constructor"  << endl;
+//    QTextStream outstream(stdout);
+//    outstream << "IntervalTree default constructor"  << endl;
 }
 
 
@@ -474,18 +479,18 @@ IntervalTree<T>::IntervalTree(const T& container,
     QTime timer;
     timer.start();
     indices.sort(MinStartPositionContainer<T>(container));
-    outstream << "sort all intervals " +  Helper::elapsedTime(timer) << endl;
+   //outstream << "sort all intervals " +  Helper::elapsedTime(timer) << endl;
     timer.restart();
     d_ = new IntervalTreeData<T>(container, indices, indices.begin(), indices.end(), leftextent, rightextent);
-    outstream << "build tree end" +  Helper::elapsedTime(timer) << endl;
+    //outstream << "build tree end" +  Helper::elapsedTime(timer) << endl;
 }
 
 
 template <class T>
 IntervalTree<T>::IntervalTree(const IntervalTree<T>& other) : d_(other.d_), size_(other.size_)
 {
-    QTextStream outstream(stdout);
-    outstream << "IntervalTree copy constructor"  << endl;
+//    QTextStream outstream(stdout);
+//    outstream << "IntervalTree copy constructor"  << endl;
 }
 
 // TODO use vector as reference parameter in function
