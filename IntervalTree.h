@@ -8,14 +8,11 @@
 #include <QSharedDataPointer>
 #include <QSharedData>
 #include <QScopedPointer>
-// TODO remove include
-#include <QTextStream>
-#include "Helper.h"
-
+//#include <QTextStream>
+//#include "Helper.h"
 
 
 /// Represents an interval with start and end position and an extra information field value, which can be used for storing the index of an interval
-// TODO Reicht struct hier?
 class CPPCORESHARED_EXPORT Interval
 {
 public:
@@ -45,6 +42,7 @@ protected:
     int value_;
 };
 
+/// Comparator for sorting by start positions given the indices of the entries and the underlying interval container T
 template <class T>
 class CPPCORESHARED_EXPORT MinStartPositionContainer : public std::binary_function<int,int,bool>
 {
@@ -61,6 +59,8 @@ protected:
     const T& container_;
 };
 
+
+/// Comparator for sorting by end positions given the indices of the entries and the underlying interval container T
 template <class T>
 class CPPCORESHARED_EXPORT MaxEndPositionContainer: public std::binary_function<int,int,bool>
 {
@@ -78,6 +78,7 @@ protected:
 };
 
 
+/// Comparator for sorting by start positions
 struct CPPCORESHARED_EXPORT MinStartPositionInterval: public std::binary_function<Interval,Interval,bool>
 {
     bool operator()(const Interval& a, const Interval& b ) const
@@ -139,7 +140,8 @@ protected:
 
 };
 
-/// Represents an balanced (using the central point) Interval tree data structure.
+/// The shared interval tree class, which contains a pointer to the actual tree data and a reference count to allow for implicit sharing.
+/// It represents an balanced (using the central point) Interval tree data structure.
 /// (Note: It is build upon a set of intervals, which cannot be changed after its initialization.)
 template <class T>
 class CPPCORESHARED_EXPORT IntervalTree
@@ -176,15 +178,16 @@ private:
 
 
 
-
+/// Default constructor.
 template <class T>
 IntervalTreeData<T>::IntervalTreeData()
 {
-    QTextStream outstream(stdout);
-    outstream << "IntervalTreeData::IntervalTreeData default constructor " << endl;
+    //    QTextStream outstream(stdout);
+    //    outstream << "IntervalTreeData::IntervalTreeData default constructor " << endl;
 }
 
 
+/// Constructor to build the tree recursively upon a some intervals (given an interval container and a list of indices).
 template <class T>
 IntervalTreeData<T>::IntervalTreeData(const T& container,
                                       std::list<int>& indices,
@@ -195,8 +198,8 @@ IntervalTreeData<T>::IntervalTreeData(const T& container,
     : container_(container),
       center_(0)
 {
-//    QTime timer;
-//    QTextStream outstream(stdout);
+    //    QTime timer;
+    //    QTextStream outstream(stdout);
 
     int leftp = 0;
     int rightp = 0;
@@ -281,12 +284,6 @@ IntervalTreeData<T>::IntervalTreeData(const T& container,
         }
         ++it;
     }
-//    if (intervals_.count()>1)
-//    {
-
-//        outstream << "number intervals at node " << intervals_.count() << endl;
-//    }
-
     //outstream <<"categorize intervals " + Helper::elapsedTime(timer) << endl;
 
     if (left_start != left_end)
@@ -305,14 +302,15 @@ IntervalTreeData<T>::IntervalTreeData(const T& container,
 }
 
 
+/// Copy constructor in case that the data are edited and the data need to be copied "deeply".
 template <class T>
 IntervalTreeData<T>::IntervalTreeData(const IntervalTreeData &other)
     : QSharedData(other),
       intervals_(other.intervals_),
       center_(other.center_)
 {
-//    QTextStream outstream(stdout);
-//    outstream << "IntervalTreeData::IntervalTreeData copy constructor " << endl;
+    //    QTextStream outstream(stdout);
+    //    outstream << "IntervalTreeData::IntervalTreeData copy constructor " << endl;
 
     if (!other.left_.isNull())
     {
@@ -324,6 +322,7 @@ IntervalTreeData<T>::IntervalTreeData(const IntervalTreeData &other)
     }
 }
 
+/// Determine recursively the overlapping intervals of the [start, stop]. If stop_at_first_match is set true, only the first overlapping interval is returned.
 template <class T>
 void IntervalTreeData<T>::findOverlappingIntervals(int start, int stop, QVector<int>& matches, bool stop_at_first_match) const
 {
@@ -342,7 +341,6 @@ void IntervalTreeData<T>::findOverlappingIntervals(int start, int stop, QVector<
         }
     }
 
-
     if (!left_.isNull() && start <= center_)
     {
         left_->findOverlappingIntervals(start, stop, matches, stop_at_first_match);
@@ -354,6 +352,7 @@ void IntervalTreeData<T>::findOverlappingIntervals(int start, int stop, QVector<
     }
 }
 
+/// Subtract recursively the other interval tree from this interval tree.
 template <class T>
 void IntervalTreeData<T>::subtractTree(const IntervalTreeData& other, QVector<Interval>& remaining_intervals) const
 {
@@ -438,6 +437,7 @@ void IntervalTreeData<T>::subtractTree(const IntervalTreeData& other, QVector<In
 
 }
 
+/// Iterate recursively through the tree and return all intervals.
 template <class T>
 void IntervalTreeData<T>::allIntervals(QVector<Interval>& intervals) const
 {
@@ -459,15 +459,15 @@ void IntervalTreeData<T>::allIntervals(QVector<Interval>& intervals) const
 
 }
 
-
+/// Default constructor of the interval tree.
 template <class T>
 IntervalTree<T>::IntervalTree() : d_(), size_(0)
 {
-//    QTextStream outstream(stdout);
-//    outstream << "IntervalTree default constructor"  << endl;
+    //    QTextStream outstream(stdout);
+    //    outstream << "IntervalTree default constructor"  << endl;
 }
 
-
+/// Constructor to build the tree recursively upon a some intervals (given an interval container and a list of indices).
 template <class T>
 IntervalTree<T>::IntervalTree(const T& container,
                               std::list<int>& indices,
@@ -475,25 +475,25 @@ IntervalTree<T>::IntervalTree(const T& container,
                               int rightextent)
     : size_(indices.size())
 {
-    QTextStream outstream(stdout);
-    QTime timer;
-    timer.start();
+    //    QTextStream outstream(stdout);
+    //    QTime timer;
+    //    timer.start();
     indices.sort(MinStartPositionContainer<T>(container));
-   //outstream << "sort all intervals " +  Helper::elapsedTime(timer) << endl;
-    timer.restart();
+    //outstream << "sort all intervals " +  Helper::elapsedTime(timer) << endl;
+    //    timer.restart();
     d_ = new IntervalTreeData<T>(container, indices, indices.begin(), indices.end(), leftextent, rightextent);
     //outstream << "build tree end" +  Helper::elapsedTime(timer) << endl;
 }
 
-
+/// Copy constructor of the interval tree.
 template <class T>
 IntervalTree<T>::IntervalTree(const IntervalTree<T>& other) : d_(other.d_), size_(other.size_)
 {
-//    QTextStream outstream(stdout);
-//    outstream << "IntervalTree copy constructor"  << endl;
+    //    QTextStream outstream(stdout);
+    //    outstream << "IntervalTree copy constructor"  << endl;
 }
 
-// TODO use vector as reference parameter in function
+/// Determine recursively the overlapping intervals of the [start, stop]. If stop_at_first_match is set true, only the first overlapping interval is returned.
 template <class T>
 void IntervalTree<T>::overlappingIntervals(int start, int stop, QVector<int>& matches, bool stop_at_first_match) const
 {
@@ -501,6 +501,7 @@ void IntervalTree<T>::overlappingIntervals(int start, int stop, QVector<int>& ma
     d_->findOverlappingIntervals(start,stop,matches,stop_at_first_match);
 }
 
+/// Subtract recursively the other interval tree from this interval tree.
 template <class T>
 void IntervalTree<T>::subtractTree(const IntervalTree& other, QVector<Interval>& remaining_intervals) const
 {
@@ -509,6 +510,7 @@ void IntervalTree<T>::subtractTree(const IntervalTree& other, QVector<Interval>&
     d_->subtractTree(*(other.d_), remaining_intervals);
 }
 
+/// Iterate recursively through the tree and return all intervals.
 template <class T>
 void IntervalTree<T>::allIntervals(QVector<Interval>& intervals) const
 {
@@ -518,9 +520,6 @@ void IntervalTree<T>::allIntervals(QVector<Interval>& intervals) const
     d_->allIntervals(intervals);
 
 }
-
-
-
 
 
 #endif
